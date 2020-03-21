@@ -23,10 +23,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = '4+epi1a3*a+3qizsmeei4o1co26*0a+(r44d83z=c5!!)e#$2j'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = False
 
-#ALLOWED_HOSTS = ['rhyme-yun.top','106.12.213.29']
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['rhyme-yun.top','106.12.213.29']
+#ALLOWED_HOSTS = []
 
 
 # Application definition
