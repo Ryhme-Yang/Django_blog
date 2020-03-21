@@ -1,0 +1,16 @@
+{% extends "learning_logs/base.html" %}
+
+{% block header%}
+    <div class='jumbutton'>
+        <h1>自动瞄准已开启！</h1>
+    </div>
+{% endblock header%}
+
+{% block content %}
+    <h2>
+        <a href="{% url 'users:register' %}">注册您的账户</a>去建立你自己的学习博客
+    </h2>
+    <h2>
+        当你想记下你的学习笔记时，可以随时来到本站进行访问。
+    </h2>
+{% endblock content %}
