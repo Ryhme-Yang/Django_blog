@@ -4,31 +4,55 @@ from django.http import HttpResponseRedirect,Http404
 from django.urls import reverse
 from django.contrib.auth.decorators import login_required
 
-from .models import Topic, Entry
-from .forms import TopicForm,EntryForm
+from .models import Topic, Entry, Comment
+from .forms import TopicForm,EntryForm,CommentForm
 
 # Create your views here.
 def index(request):
     """学习笔记主页"""
     return render(request,'learning_logs/index.html')
 
-@login_required
+#@login_required
 def topics(request):
     """显示所有的主题"""
-    topics=Topic.objects.filter(owner=request.user).order_by('date_added')
+    topics=Topic.objects.order_by('date_added')
     context={'topics':topics}
     return render(request,'learning_logs/topics.html',context)
 
-@login_required
+#@login_required
 def topic(request,topic_id):
     """显示单个主题及其所有的条目"""
     topic=Topic.objects.get(id=topic_id)
     #确认请求的主题属于当前用户
+    hiddenOrNo = 0
     if topic.owner != request.user:
-        raise Http404
+        hiddenOrNo = 1
+    #    raise Http404
     entries=topic.entry_set.order_by('-date_added')
-    context={'topic':topic,'entries':entries}
+    context={'topic':topic,'entries':entries,'hiddenOrNo':hiddenOrNo}
     return render(request,'learning_logs/topic.html',context)
+
+def entry(request,topic_id,entry_id):
+    """显示单个条目具体内容"""
+    topic=Topic.objects.get(id=topic_id)
+    #确认请求的主题属于当前用户
+    hiddenOrNo = 0
+    if topic.owner != request.user:
+        print('dui')
+        hiddenOrNo = 1
+    entry=Entry.objects.get(id=entry_id)
+    comments=Comment.objects.filter(entry=entry).order_by('date_added')
+    context={'topic':topic,'entry':entry,'comments':comments,'hiddenOrNo':hiddenOrNo}
+    if request.method == 'POST':
+        form=CommentForm(request.POST)
+        if form.is_valid():
+            new_comment = form.save(commit=False)
+            new_comment.entry=entry
+            new_comment.owner = request.user
+            new_comment.save()
+            return HttpResponseRedirect(reverse('learning_logs:entry',args=[topic_id,entry_id]))
+        
+    return render(request,'learning_logs/entry.html',context)
 
 @login_required
 def new_topic(request):
@@ -39,11 +63,12 @@ def new_topic(request):
     else:
         #Post提交的数据，对数据进行处理
         form = TopicForm(request.POST)
+        print(request.POST)
         if form.is_valid():
             new_topic = form.save(commit=False)
             new_topic.owner = request.user
             new_topic.save()
-            return HttpResponseRedirect(reverse('learning_logs:topics'))    #获取页面topics的url
+            return HttpResponseRedirect(reverse('learning_logs:topics',args=[topic_id]))    #获取页面topics的url
 
     context = {'form':form}
     return render(request,'learning_logs/new_topic.html',context)
@@ -52,6 +77,8 @@ def new_topic(request):
 def new_entry(request,topic_id):
     """在特定的主题中添加新条目"""
     topic=Topic.objects.get(id=topic_id)
+    if topic.owner != request.user:
+        raise Http404
 
     if request.method != 'POST':
         #未提交数据，创建一个新表单
@@ -59,9 +86,12 @@ def new_entry(request,topic_id):
     else:
         #Post提交的数据，对数据进行处理
         form = EntryForm(data=request.POST)
+        print(request.POST)
         if form.is_valid():
             new_entry = form.save(commit=False)
             new_entry.topic = topic
+            new_entry.readed = 0
+            new_entry.liked = 0
             new_entry.save()
             return HttpResponseRedirect(reverse('learning_logs:topic',args=[topic_id]))
 
@@ -82,9 +112,65 @@ def edit_entry(request,entry_id):
     else:
         #Post提交的数据，对数据进行处理
         form = EntryForm(instance=entry,data=request.POST)
+        print(request.POST)
         if form.is_valid():
             form.save()
             return HttpResponseRedirect(reverse('learning_logs:topic',args=[topic.id]))
 
     context = {'entry':entry,'topic':topic,'form':form}
+    #print('cuowu')
     return render(request,'learning_logs/edit_entry.html',context)
+
+@login_required
+def delete_entry(request,entry_id):
+    """删除条目"""
+    entry = Entry.objects.get(id=entry_id)
+    topic = entry.topic
+    hiddenOrNo = 0
+    if topic.owner != request.user:
+        raise Http404
+        hiddenOrNo = 1
+    Entry.objects.filter(id=entry_id).delete()
+    entries=topic.entry_set.order_by('-date_added')
+    context={'topic':topic,'entries':entries,'hiddenOrNo':hiddenOrNo}
+    return HttpResponseRedirect(reverse('learning_logs:topic',args=[topic.id]))
+    
+
+'''@login_required
+def new_comment(request,topic_id):
+    topic=Topic.objects.get(id=topic_id)
+    if topic.owner != request.user:
+        raise Http404
+
+    if request.method != 'POST':
+        #未提交数据，创建一个新表单
+        form = EntryForm()
+    else:
+        #Post提交的数据，对数据进行处理
+        form = EntryForm(data=request.POST)
+        print(request.POST)
+        if form.is_valid():
+            new_entry = form.save(commit=False)
+            new_entry.topic = topic
+            new_entry.save()
+            return HttpResponseRedirect(reverse('learning_logs:topic',args=[topic_id]))
+
+    context = {'topic':topic,'form':form}
+    return render(request,'learning_logs/new_entry.html',context)'''
+
+@login_required
+def delete_comment(request,comment_id):
+    """删除评论"""
+    
+    comment = Comment.objects.get(id=comment_id)
+    entry = comment.entry
+    topic = entry.topic
+    Comment.objects.filter(id=comment_id).delete()
+    comments=Comment.objects.filter(entry=entry).order_by('date_added')
+    hiddenOrNo = 0
+    if topic.owner != request.user:
+        raise Http404
+        hiddenOrNo = 1
+    context={'topic':topic,'entry':entry,'comments':comments,'hiddenOrNo':hiddenOrNo}
+    return HttpResponseRedirect(reverse('learning_logs:entry',args=[topic.id,entry.id]))
+    #return render(request,'learning_logs/entry.html',context)

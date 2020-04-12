@@ -1,3 +1,4 @@
+{% load static %}
 {% load bootstrap3 %}
 
 <!DOCTYPE html>
@@ -7,32 +8,30 @@
         <meta http-equiv="X-UA-Compatible" content="IE=edge">
         <meta name="viewport" content="width=device-width,initial-scale=1">
 
-        <title>学习博客</title>
+        <title>音匀科技</title>
 
         {% bootstrap_css %}
         {% bootstrap_javascript %}
-
+        
     </head>
 
     <body>
-
         <!-- Static nvbar -->
         <nav class="nvbar navbar-default navbar-static-top">
             <div class="container">
-
                 <div class="navbar-header">
                     <button type="button" class="navbar-toggle collapsed"
                         data-toggle="collapse" data-target="#navbar"
                         aria-expanded="false" aria-controls="navbar">
                     </button>
                     <a class="navbar-brand" href="{% url 'learning_logs:index' %}">
-                        博客</a>
+                        音匀科技</a>
                 </div>
 
                 <div id="navbar" class="navbar-collapse collapse">
-                    <ul class="nav navbar-nav">
+                    <!--<ul class="nav navbar-nav">
                         <li><a href="{% url 'learning_logs:topics' %}">主题</a></li>
-                    </ul>
+                    </ul>-->
 
                     <ul class="nav navbar-nav navbar-right">
                         {% if user.is_authenticated %}
@@ -44,19 +43,40 @@
                         {% endif %}
                     </ul>
                 </div><!--/.nav-collapse -->
-
             </div>
+            
         </nav>
+        
 
         <div class="container">
 
             <div class="page-header">
+                <div>
+                    <ul class="nav nav-pills nav-tabs">
+                        <li id="index" role="presentation"><a href="{% url 'learning_logs:index' %}">首页</a></li>
+                        <li id="code" role="presentation"><a href="{% url 'learning_logs:topic' 6 %}">编程区</a></li>
+                        <li id="digital" role="presentation"><a href="{% url 'learning_logs:topic' 7 %}">数码区</a></li>
+                        <li id="game" role="presentation"><a href="{% url 'learning_logs:topic' 8 %}">游戏区</a></li>
+                        <li id="guala" role="presentation"><a href="{% url 'learning_logs:topic' 9 %}">灌水区</a></li>
+                    </ul>
+                </div>
                 {% block header %}
                 {% endblock header %}
             </div>
+
             <div>
                 {% block content %}
                 {% endblock content %}
+            </div>
+
+            <div>
+                {% block edit %}
+                {% endblock edit %}
+            </div>
+
+            <div>
+                {% block comment %}
+                {% endblock comment %}
             </div>
 
         </div><!-- /container -->

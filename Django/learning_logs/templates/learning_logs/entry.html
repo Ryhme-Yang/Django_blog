@@ -1,0 +1,179 @@
+{% extends "learning_logs/base.html" %}
+{% load bootstrap3 %}
+
+{% block header %}
+    {% if topic.id == 6 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#code").addClass("active");
+                    });
+    </script>
+    {% elif topic.id == 7 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#digital").addClass("active");
+                    });
+    </script>
+    {% elif topic.id == 8 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#game").addClass("active");
+                    });
+    </script>
+    {% elif topic.id == 9 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#guala").addClass("active");
+                    });
+    </script>
+    {% endif %}
+{% endblock header %}
+
+{% block content %}  
+
+    <p id="delete_entry">
+        <a href="{% url 'learning_logs:delete_entry' entry.id %}">删除内容</a>
+    </p>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h3>
+                {{ entry.title }}
+            </h3>
+            <h3>
+                {{ entry.date_added|date:'M d, Y H:i' }}
+                <small id="edit_entry">
+                    <a href="{% url 'learning_logs:edit_entry' entry.id %}">
+                        编辑内容</a>
+                </small>
+            </h3>
+        </div>
+        <div class="panel-body">
+            <!--{{ entry.text|linebreaks }}--> 
+            
+            <div id = "content1" style="display:none;">
+                {{ entry.text }}
+            </div>
+            <div id = "content2">
+            </div>
+            <script type="text/javascript">
+                $(function() {
+                $("#content2").html($("#content1").text()); 
+                });
+            </script>
+            
+        </div>
+    </div><!-- panel -->
+    
+    {% if hiddenOrNo == 1 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#edit_entry").addClass("hidden");
+                    $("#delete_entry").addClass("hidden");
+                    });
+    </script>
+    {% endif %}
+{% endblock content %}
+
+{% block comment %}
+    <table class="table table-striped table-bordered">
+        <tbody>
+            {% for comment in comments %}
+                <tr>
+                    
+                    <td width=15%><p>{{ comment.owner }}</p><p>{{ comment.date_added|date:'M d, Y H:i' }}</p>
+                        <p id="{{ comment.id }}delete_comment">
+                            <a href="{% url 'learning_logs:delete_comment' comment.id %}">删除评论</a>
+                        </p>
+                    </td>
+                    <td width=85%><div id = "{{ comment.id }}"></div></td>
+                    <div id = "{{ comment.id }}a" style="display:none;">{{ comment.text }}</div>
+                    <script type="text/javascript">
+                        $(function() {
+                        $("#{{ comment.id }}").html($("#{{ comment.id }}a").text()); 
+                        });
+                    </script>
+                </tr>
+                {% if hiddenOrNo == 1 %}
+                    <script type="text/javascript">
+                        $(function() {
+                                    $("#{{ comment.id }}delete_comment").addClass("hidden");
+                                    });
+                    </script>
+                {% endif %}
+            {% empty %}
+                <li>这里还没有内容。</li>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <form id="form" action="{% url 'learning_logs:entry' topic.id entry.id %}" method='post' class="form">
+        {% csrf_token %}
+        <div id="div1">
+            <p><b>在此输入评论内容</b></p>
+        </div>
+        <textarea id="text1" name="text" style="width:0; height:0; visibility:hidden;"></textarea>
+        {% buttons %}
+            <button name="submit" class="btn btn-primary">提交</button>
+        {% endbuttons %}
+        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../../../static/js/wangEditor.min.js"></script>
+        <script type="text/javascript">
+            var E = window.wangEditor
+            var editor = new E('#div1')
+            var $text1 = $('#text1')
+            editor.customConfig.onchange = function (html) {
+                // 监控变化，同步更新到 textarea
+                $text1.val(html)
+            }
+            // 自定义菜单配置
+            editor.customConfig.menus = [
+                'bold',  // 粗体
+                'fontSize',  // 字号
+                'fontName',  // 字体
+                'italic',  // 斜体
+                'underline',  // 下划线
+                'strikeThrough',  // 删除线
+                'foreColor',  // 文字颜色
+                'backColor',  // 背景颜色
+                'emoticon',  // 表情
+                'undo',  // 撤销
+                'redo'  // 重复
+            ]
+
+            // 表情面板可以有多个 tab ，因此要配置成一个数组。数组每个元素代表一个 tab 的配置
+            editor.customConfig.emotions = [
+                {
+                    // tab 的标题
+                    title: '默认',
+                    // type -> 'emoji' / 'image'
+                    type: 'image',
+                    // content -> 数组
+                    content: [
+                        {
+                            alt: '[坏笑]',
+                            src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/50/pcmoren_huaixiao_org.png'
+                        },
+                        {
+                            alt: '[舔屏]',
+                            src: 'http://img.t.sinajs.cn/t4/appstyle/expression/ext/normal/40/pcmoren_tian_org.png'
+                        }
+                    ]
+                },
+                {
+                    // tab 的标题
+                    title: 'emoji',
+                    // type -> 'emoji' / 'image'
+                    type: 'emoji',
+                    // content -> 数组
+                    content: ['😀', '😃', '😄', '😁', '😆']
+                }
+            ]
+
+            editor.create()
+            // 初始化 textarea 的值
+            $text1.val(editor.txt.html())
+        </script>
+    </form>
+
+    
+{% endblock comment %}

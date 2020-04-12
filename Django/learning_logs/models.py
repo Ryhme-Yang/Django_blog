@@ -17,8 +17,11 @@ class Topic(models.Model):
 class Entry(models.Model):
     """学到的有关某个主题的具体知识"""
     topic=models.ForeignKey(Topic,on_delete=models.CASCADE)
+    title=models.CharField(max_length=200)
     text=models.TextField()
     date_added=models.DateTimeField(auto_now_add=True)
+    readed=models.IntegerField()
+    liked=models.IntegerField()
 
     class Meta:
         verbose_name_plural='entries'
@@ -26,3 +29,10 @@ class Entry(models.Model):
     def __str__(self):
         """返回模型的字符串表示"""
         return self.text[:50] + "..."
+
+class Comment(models.Model):
+    """评论"""
+    entry=models.ForeignKey(Entry,on_delete=models.CASCADE)
+    text=models.TextField(max_length=1000)
+    date_added=models.DateTimeField(auto_now_add=True)
+    owner=models.ForeignKey(User,on_delete=models.CASCADE)

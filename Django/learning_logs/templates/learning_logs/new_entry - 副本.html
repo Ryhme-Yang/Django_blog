@@ -1,0 +1,58 @@
+{% extends "learning_logs/base.html" %}
+{% load bootstrap3 %}
+
+
+{% block header %}
+    <h2>
+        <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
+    </h2>
+    
+{% endblock header %}
+
+
+{% block content %} 
+    <h3>添加一个新内容：</h3>
+    <form action="{% url 'learning_logs:new_entry' topic.id %}" method='post' class="form">
+        {% csrf_token %}
+        {% bootstrap_form form %}
+
+        {% buttons %}
+            <button name="submit" class="btn btn-primary">提交</button>
+        {% endbuttons %}
+    </form>
+{% endblock content %}
+
+{% block edit %}
+<form action="{% url 'learning_logs:new_entry' topic.id %}" method='post' class="form">
+    {% csrf_token %}
+    <div>
+        <script type="text/javascript" src=""></script>
+        <script type="text/javascript">
+            var E = window.wangEditor
+            var editor = new E( document.getElementById('editor') )
+            // 或者 var editor = new E('#editor')
+            editor.create()
+        </script>
+    </div>
+    <div id="div1">
+        <p>在此输入内容</p>
+    </div>
+    {% buttons %}
+        <button id="btn" name="submit1" class="btn btn-primary">提交</button>
+    {% endbuttons %}
+
+    <script type="text/javascript" src="../../static/js/wangEditor.min.js"></script>
+    <script type="text/javascript">
+        var E = window.wangEditor
+        var editor = new E('#div1')
+        editor.create()
+
+        document.getElementById('btn').addEventListener('click', function () {
+            // 读取 html
+            alert(editor.txt.html())
+        }, false)
+
+    </script>
+</form>
+{% endblock edit %}
+

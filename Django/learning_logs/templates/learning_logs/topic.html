@@ -1,35 +1,64 @@
 {% extends "learning_logs/base.html" %}
 
 {% block header %}
-    <h2>{{ topic }}</h2>
+    {% if topic.id == 6 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#code").addClass("active");
+                    });
+    </script>
+    {% elif topic.id == 7 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#digital").addClass("active");
+                    });
+    </script>
+    {% elif topic.id == 8 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#game").addClass("active");
+                    });
+    </script>
+    {% elif topic.id == 9 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#guala").addClass("active");
+                    });
+    </script>
+    {% endif %}
 {% endblock header %}
 
 {% block content %}
-    <p>
+    <p id="add_entry">
         <a href="{% url 'learning_logs:new_entry' topic.id %}">添加内容</a>
     </p>
+    
+    <table class="table table-striped">
+        <thead>
+           <th width=80%>标题</th>
+           <th width=20%>时间</th>
+        </thead>
+        <tbody>
+            {% for entry in entries %}
+            <tr>
+              <td><a href="{% url 'learning_logs:entry' topic.id entry.id %}">{{ entry.title }}</a></td> 
+              <td>{{ entry.date_added|date:'M d, Y H:i' }}</td> 
+            </tr>
+            {% empty %}
+                <li>
+                    这里还没有内容。 
+                </li>
+            {% endfor %}
+        </tbody>
+    </table>
 
-    {% for entry in entries %}
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                <h3>
-                    {{ entry.date_added|date:'M d, Y H:i' }}
-                    <small>
-                        <a href="{% url 'learning_logs:edit_entry' entry.id %}">
-                            编辑内容</a>
-                    </small>
-                </h3>
-            </div>
-            <div class="panel-body">
-                {{ entry.text|linebreaks }}
-            </div>
-        </div><!-- panel -->
-
-    {% empty %}
-        <li>
-            这里还没有内容。
-        </li>
-    {% endfor %}
-
+    {% if hiddenOrNo == 1 %}
+    <script type="text/javascript">
+        $(function() {
+                    $("#add_entry").addClass("hidden");
+                    $("#edit_entry").addClass("hidden");
+                    });
+    </script>
+    {% endif %}
 
 {% endblock content %}

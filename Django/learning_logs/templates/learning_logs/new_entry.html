@@ -1,16 +1,50 @@
 {% extends "learning_logs/base.html" %}
+{% load bootstrap3 %}
 
-{% block content %}
-    <p>
+
+{% block header %}
+    <h2>
         <a href="{% url 'learning_logs:topic' topic.id %}">{{ topic }}</a>
-    </p>
+    </h2>
+    
+{% endblock header %}
 
-    <p>添加一个新内容：</p>
 
-    <form action="{% url 'learning_logs:new_entry' topic.id %}" method='post'>
+{% block content %} 
+    <h3>添加一个新内容：</h3>
+    <form id="form" action="{% url 'learning_logs:new_entry' topic.id %}" method='post' class="form">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button name="submit">提交</button>
-    </form>
+        <p name='title'>请输入标题{{ form.title }}</p>
+        <div id="div1">
+            <p><b>在此输入正文内容</b></p>
+        </div>
+        
+        <textarea id="text1" name="text" style="width:0; height:0; visibility:hidden;"></textarea>
+        {% buttons %}
+            <button name="submit" class="btn btn-primary">提交</button>
+        {% endbuttons %}
 
+
+        <script src="https://cdn.bootcss.com/jquery/3.2.1/jquery.min.js"></script>
+        <script type="text/javascript" src="../../static/js/wangEditor.min.js"></script>
+        <script type="text/javascript">
+            var E = window.wangEditor
+            var editor = new E('#div1')
+            var $text1 = $('#text1')
+            editor.customConfig.onchange = function (html) {
+                // 监控变化，同步更新到 textarea
+                $text1.val(html)
+            }
+            editor.create()
+            // 初始化 textarea 的值
+            $text1.val(editor.txt.html())
+        </script>
+
+    </form>
 {% endblock content %}
+
+    
+
+
+    
+        
